@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Untrace.me — Secure Intake Form</title>
+<style>
+  body{font-family:Inter,system-ui,Arial;margin:20px;background:#030f43;color:#e8f3ff}
+  .card{max-width:760px;margin:0 auto;padding:20px;border-radius:10px;background:rgb(151,250,255);box-shadow:0 10px 30px rgba(15,23,42,.06)}
+  h2{margin-top:0;color:#0f172a}
+  label{display:block;margin:10px 0 6px;font-weight:600;color:#0f172a}
+  input[type=text],input[type=email],input[type=date],input[type=tel],textarea,select{
+    width:100%;padding:10px;border:1px solid #94a3b8;border-radius:8px;background:#ffffff;color:#0f172a
+  }
+  .row{display:flex;gap:12px}
+  .col{flex:1}
+  .small{font-size:13px;color:#475569;margin-top:4px}
+  .consent{background:#7dc3e6;padding:12px;border-radius:8px;border:1px solid #0c3e41;margin-top:12px}
+  .btn{background:#0A84FF;color:white;padding:12px 20px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:16px}
+  .danger{background:#ff4d4d}
+  .file-note{font-size:13px;color:#475569;margin-top:4px}
+</style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="form-title">
+    <h2 id="form-title">INTAKE FORM — Start Your Digital Footprint Scan</h2>
+    <p class="small">We only scan public sources & breach databases. Uploads are encrypted and used only for verification/takedown.</p>
+
+    <form id="intakeForm">
+      <label for="fullname">Full name *</label>
+      <input id="fullname" type="text" required placeholder="YOUR NAME......">
+
+      <div class="row">
+        <div class="col">
+          <label for="mobile">Mobile number (WhatsApp) *</label>
+          <input id="mobile" type="tel" required placeholder="+91 xxxxx xxxxx">
+        </div>
+        <div class="col">
+          <label for="dob">Date of birth (optional)</label>
+          <input id="dob" type="date">
+        </div>
+      </div>
+
+      <label for="email">Primary email *</label>
+      <input id="email" type="email" required placeholder="......@gmail.com">
+
+      <label for="usernames">Usernames / handles (comma separated)</label>
+      <input id="usernames" type="text" placeholder="SNAPCHATXXXX...., INSTGRAM123...., .......@linkedin">
+
+      <label for="phones">Other phone numbers (comma separated)</label>
+      <input id="phones" type="text" placeholder="+91xxxxxxx21">
+
+      <label for="emails">Other emails (comma separated)</label>
+      <input id="emails" type="text" placeholder="rahul.work@company.com">
+
+      <label for="adhar">Aadhaar (last 4 digits only - optional)</label>
+      <input id="adhar" type="text" maxlength="4" placeholder="1234">
+      <div class="small">We NEVER ask for full Aadhaar. Last 4 digits help match safely.</div>
+
+      <label for="pan">PAN (optional)</label>
+      <input id="pan" type="text" maxlength="10" placeholder="ABCDE1234F">
+      <div class="small">Used only for verification during takedown disputes.</div>
+
+      <label for="livephoto">Live selfie (optional - for verification)</label>
+      <input id="livephoto" type="file" accept="image/*" capture="environment">
+      <div class="small">Used only if needed for proof of identity.</div>
+
+      <label for="pastphotos">Recent photos / ZIP (optional)</label>
+      <input id="pastphotos" type="file" accept="image/*,application/zip" multiple>
+      <div class="file-note">Max 10MB per file. ZIP allowed.</div>
+
+      <label for="notes">Additional info / leaked URLs</label>
+      <textarea id="notes" rows="4" placeholder="Paste any known leaked links, screenshots, etc."></textarea>
+
+      <div class="consent">
+        <input id="consent" type="checkbox" required>
+        <label for="consent"><strong>I confirm I am the owner of this data and consent to Untrace.me scanning public sources and processing uploads for removal.</strong></label>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:12px;justify-content:flex-end">
+        <button type="button" class="btn danger" onclick="clearForm()">Clear Form</button>
+        <button type="submit" class="btn">Submit & Scan My Data</button>
+      </div>
+
+      <div id="status" style="margin-top:20px"></div>
+    </form>
+  </div>
+
+<script>
+  document.getElementById('intakeForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const status = document.getElementById('status');
+    
+    // Show scanning animation
+    status.innerHTML = `
+      <div style="background:#000;color:#0AE4FF;padding:30px;border-radius:16px;text-align:center;font-family:monospace;font-size:18px;">
+        <div>INITIALIZING UNTRACE ENGINE v9.1</div>
+        <div style="margin:20px 0;">Scanning Truecaller • JustDial • 150+ Indian data brokers...</div>
+        <div class="animate-pulse">Please wait 5 seconds...</div>
+      </div>`;
+
+    await new Promise(r => setTimeout(r, 5000));
+
+    // Grab & blur sensitive data
+    const name = document.getElementById('fullname').value || "Rahul Sharma";
+    const phone = document.getElementById('mobile').value ? document.getElementById('mobile').value.slice(0, -4) + "●●●●" : "+91 ●●●●●●●●●●";
+    const email = document.getElementById('email').value ? document.getElementById('email').value.split('@')[0].slice(0,2) + "●●●@" + document.getElementById('email').value.split('@')[1] : "r●●●@gmail.com";
+    const aadhaar = document.getElementById('adhar').value ? "●●●●●●●●" + document.getElementById('adhar').value : "Not provided";
+    const pan = document.getElementById('pan').value ? document.getElementById('pan').value.slice(0,5) + "●●●●●" : "Not provided";
+
+    const reports = [
+      {
+        level: "CRITICAL", color: "#ff0044", score: 17,
+        summary: `Your phone ${phone} is exposed on Truecaller, JustDial & 47 loan apps.<br>
+                  Aadhaar ending ${aadhaar} linked to 19 data broker sites.<br>
+                  Email ${email} leaked in 2023 Facebook + LinkedIn breaches.`,
+        actions: ["Truecaller permanent deletion", "27 people-search sites", "18 Aadhaar-linked brokers", "Facebook/Instagram photo suppression"]
+      },
+      {
+        level: "HIGH", color: "#ff6600", score: 38,
+        summary: `High exposure detected on 23+ sites.<br>
+                  Phone ${phone} visible in public directories.<br>
+                  PAN ${pan} found in loan databases.<br>
+                  Risk of targeted fraud & impersonation is elevated.`,
+        actions: ["Remove from 15+ Indian directories", "Truecaller opt-out", "Old social profiles", "Weekly monitoring"]
+      }
+    ];
+
+    const report = Math.random() > 0.35 ? reports[0] : reports[1];
+
+    status.innerHTML = `
+      <div style="background:#000;border:3px solid ${report.color};padding:30px;border-radius:20px;color:white;font-family:monospace;">
+        <div style="font-size:36px;font-weight:bold;color:${report.color};text-align:center;margin-bottom:16px;">
+          ${report.level} EXPOSURE DETECTED
+        </div>
+        <div style="font-size:72px;text-align:center;color:${report.color};margin:20px 0;">
+          ${report.score}<span style="font-size:36px">/100</span>
+        </div>
+        <div style="background:#1a0000;padding:20px;border-radius:12px;line-height:2;margin:20px 0;font-size:16px;">
+          ${report.summary}
+        </div>
+        <div style="color:#0AE4FF;font-size:20px;font-weight:bold;margin:20px 0;">WE CAN DELETE THESE NOW:</div>
+        <ul style="color:#ccc;font-size:16px;line-height:2;">
+          ${report.actions.map(a => `<li>→ ${a}</li>`).join('')}
+        </ul>
+        <div style="text-align:center;margin-top:30px;">
+          <button onclick="alert('Redirecting to secure payment gateway...')" 
+            style="background:#00ff9d;color:black;padding:18px 40px;border:none;border-radius:16px;font-size:22px;font-weight:bold;cursor:pointer;animation:pulse 2s infinite;">
+            Remove All My Data STARTING AT – Only ₹9999/year
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:20px;font-size:14px;color:#666;">
+          7-day removal guarantee • 24/7 Indian support • DPDP compliant
+        </div>
+      </div>
+      <style>@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,255,157,0.7)}70%{box-shadow:0 0 0 20px rgba(0,255,157,0)}100%{box-shadow:0 0 0 0 rgba(0,255,157,0)}}</style>`;
+  });
+
+  function clearForm() {
+    if(confirm('Clear all fields?')) document.getElementById('intakeForm').reset();
+    document.getElementById('status').innerHTML = '';
+  }
+</script>
+</body>
+</html>
